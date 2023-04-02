@@ -252,6 +252,12 @@ class HomeScreenState extends State<HomeScreen> {
                           final data = gridData[index];
 
                           return MaterialButton(
+                            onLongPress: () {
+                              if (data.buttonText == 'X') {
+                                celsiusTextController.clear();
+                                fahrenheitTextController.clear();
+                              }
+                            },
                             onPressed: () {
                               if (integerNumbers.contains(data.buttonText)) {
                                 if (celsiusFocusNode.hasFocus) {
@@ -280,6 +286,8 @@ class HomeScreenState extends State<HomeScreen> {
                                   deleteText(fahrenheitTextController);
                                 }
                               }
+
+                              HapticFeedback.mediumImpact();
                             },
                             child: data.buttonText == 'X'
                                 ? const Icon(
@@ -316,11 +324,12 @@ class HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         if (isCelsiusFiledSelected) {
                           fahrenheitTextController.text =
-                              covertToCelsius(celsiusTextController.text);
+                              covertToFahrenheit(celsiusTextController.text);
                         } else {
                           celsiusTextController.text =
                               covertToCelsius(fahrenheitTextController.text);
                         }
+                        HapticFeedback.mediumImpact();
                       },
                     ),
                   )
@@ -339,7 +348,8 @@ String covertToCelsius(String value) {
   if (value.isEmpty) {
     return '';
   }
-  final result = num.parse(value) - 32 * 0.5556;
+  var result = num.parse(value) - 32;
+  result = result * 5 / 9;
 
   return result.toString();
 }
@@ -349,30 +359,26 @@ String covertToFahrenheit(String value) {
   if (value.isEmpty) {
     return '';
   }
-  final result = num.parse(value) * 1.8 + 32;
+  var result = num.parse(value) * 9 / 5;
+  result = result + 32;
 
   return result.toString();
 }
 
 // adds text to textcontroller
 void editText(String data, TextEditingController controller) {
-  var value = controller.value;
-  var newValue = TextEditingValue(
-      text: value.text.replaceRange(
-        value.selection.baseOffset,
-        value.selection.extentOffset,
+  var expression = controller.value;
+  var newExpression = TextEditingValue(
+      text: expression.text.replaceRange(
+        expression.selection.baseOffset,
+        expression.selection.extentOffset,
         data,
       ),
       selection: TextSelection.collapsed(
-        offset: value.selection.baseOffset + data.length,
+        offset: expression.selection.baseOffset + data.length,
       ));
-  var textData = newValue.text;
-  var newValue1 = newValue.copyWith(
-      text: textData,
-      selection: TextSelection.collapsed(
-        offset: textData.length,
-      ));
-  controller.value = newValue1;
+
+  controller.value = newExpression;
 }
 
 // delete text from text controller
